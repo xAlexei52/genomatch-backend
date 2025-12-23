@@ -42,7 +42,7 @@ const authenticate = async (req, res, next) => {
 
     req.user = user;
     next();
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({
       success: false,
       error: 'Authentication failed',

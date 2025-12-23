@@ -102,13 +102,25 @@ npm start
 
 ## Available Scripts
 
+### Development
+
 - `npm start` - Start the server in production mode
 - `npm run dev` - Start the server in development mode with nodemon
+
+### Database
+
 - `npm run db:migrate` - Run database migrations
 - `npm run db:migrate:undo` - Undo last migration
 - `npm run db:seed` - Run all seeders
 - `npm run db:seed:undo` - Undo all seeders
 - `npm run db:reset` - Drop, create, migrate and seed database
+
+### Code Quality
+
+- `npm run lint` - Run ESLint to check for code issues
+- `npm run lint:fix` - Auto-fix ESLint issues
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check if code is formatted correctly
 
 ## API Endpoints
 
@@ -166,6 +178,39 @@ Authorization: Bearer YOUR_TOKEN_HERE
 - **Authentication**: JWT (JSON Web Tokens)
 - **Logging**: Morgan
 - **Environment**: dotenv
+- **Code Quality**: ESLint, Prettier
+
+## Development Workflow
+
+### Before Committing
+
+1. Run linter to check for issues:
+
+```bash
+npm run lint
+```
+
+2. Format your code:
+
+```bash
+npm run format
+```
+
+3. Or fix both automatically:
+
+```bash
+npm run lint:fix && npm run format
+```
+
+### Continuous Integration
+
+This project uses GitHub Actions for CI/CD. On every push or pull request to `main` or `dev` branches, the following checks run automatically:
+
+- ESLint code quality checks
+- Prettier formatting validation
+- Build verification
+
+Make sure all checks pass before merging your PR.
 
 ## License
 
