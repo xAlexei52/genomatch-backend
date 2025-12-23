@@ -11,7 +11,7 @@ class JwtUtil {
   static verifyToken(token) {
     try {
       return jwt.verify(token, config.jwt.secret);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }

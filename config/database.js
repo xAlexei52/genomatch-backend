@@ -1,11 +1,12 @@
 require('dotenv').config();
 
-const sslConfig = process.env.DB_SSL === 'true'
-  ? {
-      require: true,
-      rejectUnauthorized: false,
-    }
-  : false;
+const sslConfig =
+  process.env.DB_SSL === 'true'
+    ? {
+        require: true,
+        rejectUnauthorized: false,
+      }
+    : false;
 
 module.exports = {
   development: {
