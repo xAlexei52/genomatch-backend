@@ -7,6 +7,7 @@ Contexto del proyecto para sesiones de desarrollo con IA.
 ## Descripción del proyecto
 
 **Genomatch** es un sistema backend para bancos de sangre que:
+
 - Recibe e importa resultados de secuenciación NGS (panel RBCPv3) de grupos sanguíneos
 - Almacena fenotipos y genotipos de donadores
 - Busca donadores compatibles con receptores usando similitud vectorial (pgvector)
@@ -16,20 +17,20 @@ Contexto del proyecto para sesiones de desarrollo con IA.
 
 ## Stack tecnológico
 
-| Capa              | Tecnología                                   |
-|-------------------|----------------------------------------------|
-| Runtime           | Node.js                                      |
-| Framework         | Express 5.2.1                                |
-| ORM (legacy auth) | Sequelize 6.37.7                             |
-| DB driver         | pg 8.16.3 (pg.Pool para migraciones e import)|
-| Base de datos     | PostgreSQL + **pgvector**                    |
-| Auth              | JWT (jsonwebtoken)                           |
-| Hash              | bcryptjs                                     |
-| Upload            | multer (memory storage)                      |
-| Seguridad         | helmet, cors                                 |
-| Logging           | morgan                                       |
-| Migration runner  | `scripts/db-migrate.js` (custom, usa pg)     |
-| Linting      | ESLint + Prettier           |
+| Capa              | Tecnología                                    |
+| ----------------- | --------------------------------------------- |
+| Runtime           | Node.js                                       |
+| Framework         | Express 5.2.1                                 |
+| ORM (legacy auth) | Sequelize 6.37.7                              |
+| DB driver         | pg 8.16.3 (pg.Pool para migraciones e import) |
+| Base de datos     | PostgreSQL + **pgvector**                     |
+| Auth              | JWT (jsonwebtoken)                            |
+| Hash              | bcryptjs                                      |
+| Upload            | multer (memory storage)                       |
+| Seguridad         | helmet, cors                                  |
+| Logging           | morgan                                        |
+| Migration runner  | `scripts/db-migrate.js` (custom, usa pg)      |
+| Linting           | ESLint + Prettier                             |
 
 ---
 
@@ -103,25 +104,28 @@ genomatch-backend/
 **Base URL:** `http://localhost:3000/api/v1`
 
 ### Públicos
-| Método | Ruta                   | Body                                      | Descripción         |
-|--------|------------------------|-------------------------------------------|---------------------|
-| GET    | `/health`              | —                                         | Health check        |
-| GET    | `/api/v1`              | —                                         | Info de la API      |
-| POST   | `/api/v1/auth/login`   | `{ username, password }`                  | Login → JWT token   |
-| POST   | `/api/v1/users`        | `{ site_id, username, full_name, password, email? }` | Crear usuario |
+
+| Método | Ruta                 | Body                                                 | Descripción       |
+| ------ | -------------------- | ---------------------------------------------------- | ----------------- |
+| GET    | `/health`            | —                                                    | Health check      |
+| GET    | `/api/v1`            | —                                                    | Info de la API    |
+| POST   | `/api/v1/auth/login` | `{ username, password }`                             | Login → JWT token |
+| POST   | `/api/v1/users`      | `{ site_id, username, full_name, password, email? }` | Crear usuario     |
 
 ### Protegidos (Bearer JWT)
-| Método | Ruta                  | Descripción              |
-|--------|-----------------------|--------------------------|
-| GET    | `/api/v1/auth/profile`         | Perfil + screens del usuario |
-| GET    | `/api/v1/users`                | Listar usuarios (`?site_id=`) |
-| GET    | `/api/v1/users/:id`            | Usuario por ID + screens      |
-| PUT    | `/api/v1/users/:id`            | Actualizar usuario            |
-| DELETE | `/api/v1/users/:id`            | Eliminar usuario              |
-| PUT    | `/api/v1/users/:id/permissions`| Reemplazar screens del usuario|
-| POST   | `/api/v1/import/run`           | Importar muestra NGS (multipart)|
+
+| Método | Ruta                            | Descripción                      |
+| ------ | ------------------------------- | -------------------------------- |
+| GET    | `/api/v1/auth/profile`          | Perfil + screens del usuario     |
+| GET    | `/api/v1/users`                 | Listar usuarios (`?site_id=`)    |
+| GET    | `/api/v1/users/:id`             | Usuario por ID + screens         |
+| PUT    | `/api/v1/users/:id`             | Actualizar usuario               |
+| DELETE | `/api/v1/users/:id`             | Eliminar usuario                 |
+| PUT    | `/api/v1/users/:id/permissions` | Reemplazar screens del usuario   |
+| POST   | `/api/v1/import/run`            | Importar muestra NGS (multipart) |
 
 ### Respuesta de usuario (todos los endpoints de users y auth)
+
 ```json
 {
   "id": "uuid",
@@ -136,6 +140,7 @@ genomatch-backend/
 ```
 
 ### PUT /api/v1/users/:id/permissions
+
 ```json
 // Request body:
 { "screens": ["dashboard", "search", "import", "expediente"] }
@@ -143,9 +148,11 @@ genomatch-backend/
 // Response:
 { "userId": "uuid", "screens": ["dashboard", "search", "import", "expediente"] }
 ```
+
 El frontend gestiona qué vistas existen. El backend solo almacena y devuelve el array.
 
 ### POST /api/v1/import/run
+
 ```
 Content-Type: multipart/form-data
 Authorization: Bearer <JWT>
@@ -204,23 +211,24 @@ en la tabla `_migrations` de la DB. Solo procesa archivos `.sql` de `database/mi
 
 ### Tablas principales
 
-| Tabla                  | Descripción                                              |
-|------------------------|----------------------------------------------------------|
-| `sites`                | Bancos de sangre / sedes (multi-tenant)                  |
-| `users`                | Usuarios por sede (NEW schema — NO la de Sequelize)      |
-| `screen_permissions`   | Permisos CRUD por pantalla por usuario                   |
-| `blood_group_systems`  | 45 sistemas ISBT (ABO, RH, KEL, FY, JK, etc.)           |
-| `cat_antigenos`        | Catálogo de 444 antígenos con posición vector y peso clínico |
-| `allele_definitions`   | Definición de alelos ISBT por gen                        |
-| `sequencing_runs`      | Corridas de secuenciación (placa + fecha + instrumento)  |
-| `samples`              | Muestras **particionadas por año** (2024–2027)           |
-| `allele_calls`         | Llamadas de alelo por amplicon/posición cDNA             |
-| `consensus_sequences`  | Secuencias consensus por gen                             |
-| `audit.change_log`     | Log inmutable de cambios (NOM-253-SSA1)                  |
-| `audit.activity_log`   | Log de actividad API                                     |
-| `mv_current_donor_profiles` | Vista materializada de perfiles actuales de donadores |
+| Tabla                       | Descripción                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| `sites`                     | Bancos de sangre / sedes (multi-tenant)                      |
+| `users`                     | Usuarios por sede (NEW schema — NO la de Sequelize)          |
+| `screen_permissions`        | Permisos CRUD por pantalla por usuario                       |
+| `blood_group_systems`       | 45 sistemas ISBT (ABO, RH, KEL, FY, JK, etc.)                |
+| `cat_antigenos`             | Catálogo de 444 antígenos con posición vector y peso clínico |
+| `allele_definitions`        | Definición de alelos ISBT por gen                            |
+| `sequencing_runs`           | Corridas de secuenciación (placa + fecha + instrumento)      |
+| `samples`                   | Muestras **particionadas por año** (2024–2027)               |
+| `allele_calls`              | Llamadas de alelo por amplicon/posición cDNA                 |
+| `consensus_sequences`       | Secuencias consensus por gen                                 |
+| `audit.change_log`          | Log inmutable de cambios (NOM-253-SSA1)                      |
+| `audit.activity_log`        | Log de actividad API                                         |
+| `mv_current_donor_profiles` | Vista materializada de perfiles actuales de donadores        |
 
 ### Columnas clave de `samples` (migración 013 — lowercase)
+
 ```
 abo_type, rh_d, rh_cc (C), rh_c, rh_ee (E), rh_e
 kel_kk (K), kel_k, kel_kpa, kel_kpb
@@ -236,6 +244,7 @@ validation_status   PENDING | VALIDATED | REJECTED | REVIEW
 ```
 
 ### Función de búsqueda de compatibilidad
+
 ```sql
 buscar_donantes_compatibles(p_abo_receptor, p_rh_receptor, p_fenotipos_receptor, ...)
 -- Usa coseno similarity con fenotipo_ponderado o fenotipo_vector
@@ -247,6 +256,7 @@ buscar_donantes_compatibles(p_abo_receptor, p_rh_receptor, p_fenotipos_receptor,
 ## Patrones y convenciones del código
 
 ### Patrón de controllers
+
 ```js
 class XController {
   async method(req, res, next) {
@@ -262,16 +272,19 @@ module.exports = new XController();
 ```
 
 ### Patrón de rutas
+
 ```js
 const authenticate = require('../middlewares/auth.middleware');
 router.post('/endpoint', authenticate, controller.method);
 ```
 
 ### Raw SQL (import / búsqueda)
+
 - Usar `src/utils/db.js` → `pg.Pool`
 - Para transacciones: `client = await pool.connect()` → `client.query('BEGIN')` → ... → `COMMIT` / `ROLLBACK` → `client.release()`
 
 ### Sequelize (auth / users legacy)
+
 - Solo para `User.findByPk()` en auth middleware
 - NO usar Sequelize para tablas de la nueva DB schema (samples, allele_calls, etc.)
 
@@ -298,30 +311,36 @@ CORS_ORIGIN=http://localhost:3000
 ## Notas importantes / Advertencias
 
 1. **Dos schemas de usuarios coexisten:**
+
    - `user.model.js` (Sequelize) → tabla `users` legacy con `firstName`, `lastName`, `email`
    - SQL migration 003 → tabla `users` nueva con `username`, `full_name`, `site_id`
    - El `auth.middleware.js` usa el modelo Sequelize (legacy)
    - Los imports usan la tabla nueva via raw SQL
 
 2. **Columnas sensibles a case en `samples`:**
+
    - Migración 013 forzó todo a lowercase — usar `rh_d` no `rh_D`
    - `rh_cc` = antígeno C (mayúscula), `rh_c` = antígeno c (minúscula)
    - `kel_kk` = antígeno K (mayúscula), `kel_k` = antígeno k (minúscula)
 
 3. **Bug conocido en migración 011:**
+
    - `buscar_donantes_compatibles` usa `s.rh_D` (old name) en línea 56
    - Debe corregirse a `s.rh_d` antes de usar la función
 
 4. **Triggers automáticos en `samples`:**
+
    - `trg_samples_vector` → auto-computa `fenotipo_vector`, `fenotipo_ponderado`, `fenotipo_bits`
    - `trg_audit_samples` → registra en `audit.change_log`
    - Ambos se aplican a todas las particiones (samples_2024, 2025, 2026, 2027)
 
 5. **Particionamiento de `samples`:**
+
    - La tabla `samples` está particionada por `run_date` (año)
    - El `PRIMARY KEY` es `(id, run_date)` — siempre incluir `run_date` en queries
 
 6. **HNSW indexes pendientes:**
+
    - Las migraciones mencionan pgvector HNSW pero nunca los crean
    - Para producción agregar: `CREATE INDEX ON samples USING hnsw (fenotipo_vector vector_cosine_ops)`
 
@@ -334,6 +353,7 @@ CORS_ORIGIN=http://localhost:3000
 ## Formato de archivos TSV (input del import)
 
 ### sampleDetailsLong.tsv (archivo principal)
+
 ```
 SampleID  | Category           | Key                        | Value
 --------- | ------------------ | -------------------------- | -----
@@ -346,6 +366,7 @@ RBC-23    | predicted_phenotype| CORE;RHD;Exon1;RhD         | +
 ```
 
 ### Valores de fenotipos
+
 ```
 +    = Positivo
 0    = Negativo
@@ -355,8 +376,10 @@ UNX  = Inesperado
 NA   = No aplica / no testeado
 ```
 
-### alleles/*.tsv — bloques por sistema/gen
+### alleles/\*.tsv — bloques por sistema/gen
+
 - Bloque por antigen group con amplicons (bases cDNA) + llamadas de alelos
 
-### consensus/*.csv — bloques por exón
+### consensus/\*.csv — bloques por exón
+
 - Secuencias de DNA por posición proteica/cDNA con QC por posición
