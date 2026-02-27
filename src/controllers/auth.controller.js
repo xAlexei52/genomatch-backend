@@ -4,16 +4,13 @@ const ResponseUtil = require('../utils/response.util');
 class AuthController {
   async login(req, res, next) {
     try {
-      const { username, password } = req.body;
+      const { email, password } = req.body;
 
-      if (!username || !password) {
-        return ResponseUtil.badRequest(
-          res,
-          'Username and password are required'
-        );
+      if (!email || !password) {
+        return ResponseUtil.badRequest(res, 'Email and password are required');
       }
 
-      const result = await authService.login(username, password);
+      const result = await authService.login(email, password);
 
       if (!result) {
         return ResponseUtil.unauthorized(res, 'Invalid credentials');
