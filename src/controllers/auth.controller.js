@@ -1,4 +1,5 @@
 const authService = require('../services/auth.service');
+const ResponseUtil = require('../utils/response.util');
 
 class AuthController {
   async login(req, res, next) {
@@ -6,25 +7,16 @@ class AuthController {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        return res.status(400).json({
-          success: false,
-          error: 'Email and password are required',
-        });
+        return ResponseUtil.badRequest(res, 'Email and password are required');
       }
 
       const result = await authService.login(email, password);
 
       if (!result) {
-        return res.status(401).json({
-          success: false,
-          error: 'Invalid credentials',
-        });
+        return ResponseUtil.unauthorized(res, 'Invalid credentials');
       }
 
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      return ResponseUtil.success(res, result, 'Login successful');
     } catch (error) {
       next(error);
     }
@@ -32,10 +24,7 @@ class AuthController {
 
   async getProfile(req, res, next) {
     try {
-      res.status(200).json({
-        success: true,
-        data: req.user,
-      });
+      return ResponseUtil.success(res, req.user);
     } catch (error) {
       next(error);
     }

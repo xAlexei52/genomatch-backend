@@ -6,11 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:migrate": "sequelize-cli db:migrate",
-    "db:migrate:undo": "sequelize-cli db:migrate:undo",
-    "db:seed": "sequelize-cli db:seed:all",
-    "db:seed:undo": "sequelize-cli db:seed:undo:all",
-    "db:reset": "sequelize-cli db:drop && sequelize-cli db:create && sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:migrate:status": "node scripts/db-migrate.js --status",
+    "db:migrate:undo": "node scripts/db-migrate.js --undo-last",
+    "db:migrate:reset": "node scripts/db-migrate.js --reset",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -35,6 +34,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "pg": "^8.16.3",
     "sequelize": "^6.37.7",
     "uuid": "^13.0.0"

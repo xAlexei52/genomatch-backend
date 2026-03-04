@@ -6,3 +6,5 @@ coverage
 .env.*
 package-lock.json
 *.log
+*.md
+database/

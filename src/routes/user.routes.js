@@ -11,5 +11,6 @@ router.get('/', authenticate, userController.getAllUsers);
 router.get('/:id', authenticate, userController.getUserById);
 router.put('/:id', authenticate, userController.updateUser);
 router.delete('/:id', authenticate, userController.deleteUser);
+router.put('/:id/permissions', authenticate, userController.updatePermissions);
 
 module.exports = router;

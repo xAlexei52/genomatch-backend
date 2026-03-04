@@ -1,5 +1,6 @@
+const pool = require('../utils/db');
 const JwtUtil = require('../utils/jwt.util');
-const { User } = require('../models');
+const { getUserScreens, formatUser } = require('../services/auth.service');
 
 const authenticate = async (req, res, next) => {
   try {
@@ -22,9 +23,11 @@ const authenticate = async (req, res, next) => {
       });
     }
 
-    const user = await User.findByPk(decoded.id, {
-      attributes: { exclude: ['password'] },
-    });
+    const result = await pool.query(
+      `SELECT * FROM users WHERE id = $1 AND is_active = true LIMIT 1`,
+      [decoded.id]
+    );
+    const user = result.rows[0];
 
     if (!user) {
       return res.status(401).json({
@@ -33,14 +36,9 @@ const authenticate = async (req, res, next) => {
       });
     }
 
-    if (!user.isActive) {
-      return res.status(403).json({
-        success: false,
-        error: 'User account is inactive',
-      });
-    }
+    const screens = await getUserScreens(user.id);
+    req.user = formatUser(user, screens);
 
-    req.user = user;
     next();
   } catch (_error) {
     return res.status(500).json({
