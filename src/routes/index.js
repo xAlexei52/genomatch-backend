@@ -5,11 +5,13 @@ const router = express.Router();
 const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const importRoutes = require('./import.routes');
+const sampleRoutes = require('./sample.routes');
 
 // Register routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/import', importRoutes);
+router.use('/samples', sampleRoutes);
 
 // Root API endpoint
 router.get('/', (req, res) => {
